@@ -21,6 +21,9 @@ void microMouseServer::studentAI()
  * void foundFinish();
  * void printUI(const char *mesg);
 */
-
-    // new comment
+    if(!isWallRight()){
+        turnRight();
+    } else if(!isWallForward()){
+        moveForward();
+    }
 }
