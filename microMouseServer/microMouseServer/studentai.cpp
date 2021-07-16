@@ -21,9 +21,17 @@ void microMouseServer::studentAI()
  * void foundFinish();
  * void printUI(const char *mesg);
 */
+    int maze[20][20];
+
+
     if(!isWallRight()){
         turnRight();
     } else if(!isWallForward()){
         moveForward();
+    } else if(!isWallLeft()) {
+        turnLeft();
+    } else {
+        turnRight();
+        turnRight();
     }
 }
