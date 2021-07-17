@@ -14,12 +14,12 @@ int currentXPos = 0;
 int currentYPos = 0;
 
 char currentMove = 'z';
-int degree = 90;
 
 bool turnFlag = false;
 
 int leftTurns = 0;
 
+int direction = 0;
 
 void initializeArrays() {
     for (int i = 0; i < NROWS; i++) {
@@ -72,7 +72,7 @@ void microMouseServer::studentAI()
 
     if (!isWallRight()) {
         turnRight();
-        degree = degree - 90;
+        direction = (direction + 1) % 4;
         turnFlag = true;
 
         currentMove = 'r';
@@ -81,18 +81,18 @@ void microMouseServer::studentAI()
     } else if (isWallForward() && !isWallLeft()) {
         turnLeft();
 
-        degree = degree + 90;
         turnFlag = true;
         currentMove = 'l';
 
         leftTurns += 1;
+        direction = (direction - 1 + 4) % 4;
 
     } else if (isWallForward() && isWallLeft() && isWallRight()) {
         turnRight();
         turnRight();
 
+        direction = (direction + 2) % 4;
 
-        degree = degree + 180;
         turnFlag = true;
         currentMove = 'b';
         leftTurns = 0;
@@ -108,6 +108,7 @@ void microMouseServer::studentAI()
     if (leftTurns == 3) {
         foundFinish();
     }
+    printUI(QString::number(direction).toStdString().c_str());
 
 
 }
