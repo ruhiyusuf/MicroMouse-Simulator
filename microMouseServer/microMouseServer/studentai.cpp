@@ -1,5 +1,46 @@
 
 #include "micromouseserver.h"
+#include <string>
+
+const int NROWS = 20;
+const int NCOLS = 20;
+
+
+int visitCount[NROWS][NCOLS];
+char move[NROWS][NCOLS];
+bool arrayInitialized = false;
+
+int currentXPos = 0;
+int currentYPos = 0;
+
+char currentMove = 'z';
+int degree = 90;
+
+void initializeArrays() {
+
+    for (int i = 0; i < NROWS; i++) {
+        for (int j = 0; j < NCOLS; j++) {
+            visitCount[i][j] = 0;
+            move[i][j] = 'z'; // 'z' represent invalid move
+        }
+    }
+
+    visitCount[0][0] = 1; // initialize robot starting position at [0, 0]
+    arrayInitialized = true;
+}
+
+void findFinish() {
+
+}
+
+/*void getCurrentMove(char moveChar) {
+    char moveChar;
+
+    switch(moveChar) {
+    case 'r':
+        turnRight();
+    }
+}*/
 
 void microMouseServer::studentAI()
 {
@@ -21,17 +62,43 @@ void microMouseServer::studentAI()
  * void foundFinish();
  * void printUI(const char *mesg);
 */
-    int maze[20][20];
 
 
-    if(!isWallRight()){
+    if (!arrayInitialized) initializeArrays();
+
+    if (!isWallRight()) {
         turnRight();
-    } else if(!isWallForward()){
-        moveForward();
-    } else if(!isWallLeft()) {
+        degree = degree - 90;
+
+    } else if (isWallForward() && !isWallLeft()) {
         turnLeft();
-    } else {
+
+        degree = degree + 90;
+    } else if (isWallForward() && isWallLeft() && isWallRight()) {
         turnRight();
         turnRight();
+
+        degree = degree + 180;
     }
+
+    moveForward();
+
+    // std::string msg = "Degree: " + std::to_string(degree);
+    // printUI(msg);
+
+
+
+    /*if (!isWallRight()) {
+        currentMove = 'r';
+    } else if (!isWallForward()) {
+        currentMove = 'f';
+    }
+    else if (!isWallLeft()) {
+        currentMove = 'l';
+    } else {
+        currentMove = 'b';
+    }
+
+    if currentMove = 'r'*/
+
 }
