@@ -16,8 +16,12 @@ int currentYPos = 0;
 char currentMove = 'z';
 int degree = 90;
 
-void initializeArrays() {
+bool turnFlag = false;
 
+int leftTurns = 0;
+
+
+void initializeArrays() {
     for (int i = 0; i < NROWS; i++) {
         for (int j = 0; j < NCOLS; j++) {
             visitCount[i][j] = 0;
@@ -63,42 +67,47 @@ void microMouseServer::studentAI()
  * void printUI(const char *mesg);
 */
 
-
+    turnFlag = false;
     if (!arrayInitialized) initializeArrays();
 
     if (!isWallRight()) {
         turnRight();
         degree = degree - 90;
+        turnFlag = true;
+
+        currentMove = 'r';
+        leftTurns = 0;
 
     } else if (isWallForward() && !isWallLeft()) {
         turnLeft();
 
         degree = degree + 90;
+        turnFlag = true;
+        currentMove = 'l';
+
+        leftTurns += 1;
+
     } else if (isWallForward() && isWallLeft() && isWallRight()) {
         turnRight();
         turnRight();
 
+
         degree = degree + 180;
+        turnFlag = true;
+        currentMove = 'b';
+        leftTurns = 0;
     }
 
     moveForward();
-
-    // std::string msg = "Degree: " + std::to_string(degree);
-    // printUI(msg);
-
-
-
-    /*if (!isWallRight()) {
-        currentMove = 'r';
-    } else if (!isWallForward()) {
+    if (!turnFlag) {
         currentMove = 'f';
-    }
-    else if (!isWallLeft()) {
-        currentMove = 'l';
-    } else {
-        currentMove = 'b';
+
+        leftTurns = 0;
     }
 
-    if currentMove = 'r'*/
+    if (leftTurns == 3) {
+        foundFinish();
+    }
+
 
 }
