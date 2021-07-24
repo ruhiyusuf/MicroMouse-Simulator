@@ -2,6 +2,8 @@
 #include "micromouseserver.h"
 #include <string>
 
+// ruhiyusuf
+
 const int NROWS = 20;
 const int NCOLS = 20;
 
@@ -22,29 +24,87 @@ int leftTurns = 0;
 int direction = 0;
 
 void initializeArrays() {
-    for (int i = 0; i < NROWS; i++) {
+    /* for (int i = 0; i < NROWS; i++) {
         for (int j = 0; j < NCOLS; j++) {
             visitCount[i][j] = 0;
             move[i][j] = 'z'; // 'z' represent invalid move
         }
     }
 
-    visitCount[0][0] = 1; // initialize robot starting position at [0, 0]
+    visitCount[0][0] = 1; // initialize robot starting position at [0, 0] */
+
+    memset(visitCount, 0, NROWS*NCOLS*sizeof(int));
     arrayInitialized = true;
 }
 
-void findFinish() {
-
-}
-
-/*void getCurrentMove(char moveChar) {
-    char moveChar;
-
-    switch(moveChar) {
-    case 'r':
-        turnRight();
+void updateCurrentPos(char cMove, int cDirection) {
+    if (currentXPos == 20 || currentYPos == 20) {
+        int stuff = 1;
+        stuff += 1;
     }
-}*/
+    if (cDirection == 0) { // North
+        if (cMove == 'f') {
+            currentYPos += 1;
+        }
+        if (cMove == 'r') {
+            currentXPos += 1;
+        }
+        if (cMove == 'l') {
+            currentXPos -= 1;
+        }
+        if (cMove == 'b') {
+            currentYPos -= 1;
+        }
+    }
+
+    if (cDirection == 1) { // East
+        if (cMove == 'f') {
+            currentXPos += 1;
+        }
+        if (cMove == 'r') {
+            currentYPos -= 1;
+        }
+        if (cMove == 'l') {
+            currentYPos += 1;
+        }
+        if (cMove == 'b') {
+            currentXPos -= 1;
+        }
+    }
+
+    if (cDirection == 2) { // South
+        if (cMove == 'f') {
+            currentYPos -= 1;
+        }
+        if (cMove == 'r') {
+            currentXPos -= 1;
+        }
+        if (cMove == 'l') {
+            currentXPos += 1;
+        }
+        if (cMove == 'b') {
+            currentYPos += 1;
+        }
+    }
+
+    if (cDirection == 3) { // West
+        if (currentMove == 'f') {
+            currentXPos -= 1;
+        }
+        if (currentMove == 'r') {
+            currentYPos += 1;
+        }
+        if (currentMove == 'l') {
+            currentYPos -= 1;
+        }
+        if (currentMove == 'b') {
+            currentXPos += 1;
+        }
+    }
+
+    visitCount[currentXPos][currentYPos] += 1;
+    move[currentXPos][currentYPos] = cMove;
+}
 
 void microMouseServer::studentAI()
 {
@@ -66,6 +126,7 @@ void microMouseServer::studentAI()
  * void foundFinish();
  * void printUI(const char *mesg);
 */
+
 
     turnFlag = false;
     if (!arrayInitialized) initializeArrays();
@@ -108,7 +169,10 @@ void microMouseServer::studentAI()
     if (leftTurns == 3) {
         foundFinish();
     }
-    printUI(QString::number(direction).toStdString().c_str());
 
+    printUI(QString::number(direction).toStdString().c_str());
+    updateCurrentPos(currentMove, direction);
+    printUI(QString::number(currentXPos).toStdString().c_str());
+    printUI(QString::number(currentYPos).toStdString().c_str());
 
 }
