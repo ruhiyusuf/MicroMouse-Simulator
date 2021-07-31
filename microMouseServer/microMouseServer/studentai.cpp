@@ -1,109 +1,91 @@
 
 #include "micromouseserver.h"
 #include <string>
+#include <iostream>
 
+using namespace std;
 // ruhiyusuf
 
 const int NROWS = 20;
 const int NCOLS = 20;
 
+void updateCurrentPos(char cMove, int cDirection, int &currentXPos, int &currentYPos, int visitCount[][NCOLS] ) {
 
-int visitCount[NROWS][NCOLS];
-char move[NROWS][NCOLS];
-bool arrayInitialized = false;
+    switch(cDirection) {
 
-int currentXPos = 0;
-int currentYPos = 0;
-
-char currentMove = 'z';
-
-bool turnFlag = false;
-
-int leftTurns = 0;
-
-int direction = 0;
-
-void initializeArrays() {
-    /* for (int i = 0; i < NROWS; i++) {
-        for (int j = 0; j < NCOLS; j++) {
-            visitCount[i][j] = 0;
-            move[i][j] = 'z'; // 'z' represent invalid move
+    case 0: // North
+        switch(cMove) {
+        case 'f':
+            currentYPos++;
+            break;
+        case 'r':
+            currentXPos++;
+            break;
+        case 'l':
+            currentXPos--;
+            break;
+        case 'b':
+            currentYPos--;
+            break;
         }
+
+        break;
+
+    case 1: // East
+        switch(cMove) {
+        case 'f':
+            currentXPos++;
+            break;
+        case 'r':
+            currentYPos--;
+            break;
+        case 'l':
+            currentYPos++;
+            break;
+        case 'b':
+            currentXPos--;
+            break;
+        }
+        break;
+
+    case 2: // South
+        switch(cMove) {
+        case 'f':
+            currentYPos--;
+            break;
+        case 'r':
+            currentXPos--;
+            break;
+        case 'l':
+            currentXPos++;
+            break;
+        case 'b':
+            currentYPos++;
+            break;
+        }
+        break;
+
+    case 3: // West
+        switch(cMove) {
+        case 'f':
+            currentXPos--;
+            break;
+        case 'r':
+            currentYPos++;
+            break;
+        case 'l':
+            currentYPos--;
+            break;
+        case 'b':
+            currentXPos++;
+            break;
+        }
+        break;
+
     }
 
-    visitCount[0][0] = 1; // initialize robot starting position at [0, 0] */
-
-    memset(visitCount, 0, NROWS*NCOLS*sizeof(int));
-    arrayInitialized = true;
-}
-
-void updateCurrentPos(char cMove, int cDirection) {
-    if (currentXPos == 20 || currentYPos == 20) {
-        int stuff = 1;
-        stuff += 1;
-    }
-    if (cDirection == 0) { // North
-        if (cMove == 'f') {
-            currentYPos += 1;
-        }
-        if (cMove == 'r') {
-            currentXPos += 1;
-        }
-        if (cMove == 'l') {
-            currentXPos -= 1;
-        }
-        if (cMove == 'b') {
-            currentYPos -= 1;
-        }
-    }
-
-    if (cDirection == 1) { // East
-        if (cMove == 'f') {
-            currentXPos += 1;
-        }
-        if (cMove == 'r') {
-            currentYPos -= 1;
-        }
-        if (cMove == 'l') {
-            currentYPos += 1;
-        }
-        if (cMove == 'b') {
-            currentXPos -= 1;
-        }
-    }
-
-    if (cDirection == 2) { // South
-        if (cMove == 'f') {
-            currentYPos -= 1;
-        }
-        if (cMove == 'r') {
-            currentXPos -= 1;
-        }
-        if (cMove == 'l') {
-            currentXPos += 1;
-        }
-        if (cMove == 'b') {
-            currentYPos += 1;
-        }
-    }
-
-    if (cDirection == 3) { // West
-        if (currentMove == 'f') {
-            currentXPos -= 1;
-        }
-        if (currentMove == 'r') {
-            currentYPos += 1;
-        }
-        if (currentMove == 'l') {
-            currentYPos -= 1;
-        }
-        if (currentMove == 'b') {
-            currentXPos += 1;
-        }
-    }
 
     visitCount[currentXPos][currentYPos] += 1;
-    move[currentXPos][currentYPos] = cMove;
 }
 
 void microMouseServer::studentAI()
@@ -128,12 +110,43 @@ void microMouseServer::studentAI()
 */
 
 
+
+
+    static int visitCount[NROWS][NCOLS];
+
+    static int currentXPos = 0;
+    static int currentYPos = 0;
+
+    static bool startFlag = true;
+
+    if (startFlag) {
+        memset(visitCount, 0, sizeof(visitCount[0][0]) * NROWS * NCOLS);
+        visitCount[currentXPos][currentYPos] = 1;
+        startFlag = false;
+    }
+
+    static char currentMove = 'z';
+
+    static bool turnFlag = false;
+
+    static int leftTurns = 0;
+
+    static int prevDirection = 0;
+    static int nextDirection = 0;
+
     turnFlag = false;
-    if (!arrayInitialized) initializeArrays();
+
+    cout << "Move: " << currentMove << " ";
+    cout << "Direction: " << nextDirection << " ";
+    cout << "x: " << currentXPos << " ";
+    cout << "y: " << currentYPos << " ";
+    cout << "visitCount: " << visitCount[currentXPos][currentYPos];
+    cout << endl;
+
 
     if (!isWallRight()) {
         turnRight();
-        direction = (direction + 1) % 4;
+        nextDirection = (nextDirection + 1) % 4;
         turnFlag = true;
 
         currentMove = 'r';
@@ -146,13 +159,13 @@ void microMouseServer::studentAI()
         currentMove = 'l';
 
         leftTurns += 1;
-        direction = (direction - 1 + 4) % 4;
+        nextDirection = (nextDirection + 3) % 4;
 
     } else if (isWallForward() && isWallLeft() && isWallRight()) {
         turnRight();
         turnRight();
 
-        direction = (direction + 2) % 4;
+        nextDirection = (nextDirection + 2) % 4;
 
         turnFlag = true;
         currentMove = 'b';
@@ -170,9 +183,7 @@ void microMouseServer::studentAI()
         foundFinish();
     }
 
-    printUI(QString::number(direction).toStdString().c_str());
-    updateCurrentPos(currentMove, direction);
-    printUI(QString::number(currentXPos).toStdString().c_str());
-    printUI(QString::number(currentYPos).toStdString().c_str());
+    updateCurrentPos(currentMove, prevDirection, currentXPos, currentYPos, visitCount);
 
+    prevDirection = nextDirection;
 }
