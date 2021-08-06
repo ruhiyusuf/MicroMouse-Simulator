@@ -8,8 +8,9 @@ using namespace std;
 
 const int NROWS = 20;
 const int NCOLS = 20;
+const int MOVES = 4;
 
-void updateCurrentPos(char cMove, int cDirection, int &currentXPos, int &currentYPos, int visitCount[][NCOLS] ) {
+void updateCurrentPos(char cMove, int cDirection, int &currentXPos, int &currentYPos, int visitCount[][NCOLS]) {
 
     switch(cDirection) {
 
@@ -88,6 +89,22 @@ void updateCurrentPos(char cMove, int cDirection, int &currentXPos, int &current
     visitCount[currentXPos][currentYPos] += 1;
 }
 
+void updateMoveFreq(char cMove, int cDirection, int currentXPos, int currentYPos, int moveCount[][NCOLS][MOVES]){
+    int move = 0;
+
+    if (cMove == 'r'){
+        move = cDirection + 1;
+    } else if (cMove == 'f'){
+        move = cDirection;
+    } else if (cMove == 'l'){
+        move = cDirection - 1;
+    } else if (cMove == 'b'){
+        move = cDirection + 2;
+    }
+    move = abs(move) % 4;
+
+    moveCount[currentXPos][currentYPos][move] += 1;
+}
 void microMouseServer::studentAI()
 {
 /*
@@ -113,14 +130,19 @@ void microMouseServer::studentAI()
 
 
     static int visitCount[NROWS][NCOLS];
+    static int moveCount[NROWS][NCOLS][MOVES];
 
     static int currentXPos = 0;
     static int currentYPos = 0;
+
+    static int prevXPos = 0;
+    static int prevYPos = 0;
 
     static bool startFlag = true;
 
     if (startFlag) {
         memset(visitCount, 0, sizeof(visitCount[0][0]) * NROWS * NCOLS);
+        memset(moveCount, 0, sizeof(moveCount[0][0][0]) * NROWS * NCOLS * MOVES);
         visitCount[currentXPos][currentYPos] = 1;
         startFlag = false;
     }
@@ -140,9 +162,13 @@ void microMouseServer::studentAI()
     cout << "Direction: " << nextDirection << " ";
     cout << "x: " << currentXPos << " ";
     cout << "y: " << currentYPos << " ";
-    cout << "visitCount: " << visitCount[currentXPos][currentYPos];
+    cout << "visitCount: " << visitCount[currentXPos][currentYPos] << "    ";
+    cout << "moveCount (front, 0): " << moveCount[currentXPos][currentYPos][0] << "      ";
+    cout << "moveCount (right, 1): " << moveCount[currentXPos][currentYPos][1] << "      ";
+    cout << "moveCount (back, 2): " << moveCount[currentXPos][currentYPos][2] << "      ";
+    cout << "moveCount (left, 3): " << moveCount[currentXPos][currentYPos][3] << "      ";
     cout << endl;
-
+    cout << endl;
 
     if (!isWallRight()) {
         turnRight();
@@ -183,7 +209,23 @@ void microMouseServer::studentAI()
         foundFinish();
     }
 
+
+
+    cout << "prev currentXPos: " << currentXPos << " ";
+    cout << "prev currentYPos: " << currentYPos << " ";
+    cout << "------" << endl;
+
     updateCurrentPos(currentMove, prevDirection, currentXPos, currentYPos, visitCount);
+    cout << "after currentXPos: " << currentXPos << " ";
+    cout << "after currentYPos: " << currentYPos << " ";
+    cout << "------" << endl;
+    updateMoveFreq(currentMove, prevDirection, currentXPos, currentYPos, moveCount);
+
+    cout << "X, Y COORDINATES " << moveCount[1][0][1] << endl;
+    cout << "moveCount (right, 1): " << moveCount[currentXPos][currentYPos][1] << "      ";
+
 
     prevDirection = nextDirection;
+    prevXPos = currentXPos;
+    prevYPos = currentYPos;
 }
