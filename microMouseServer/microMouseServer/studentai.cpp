@@ -140,6 +140,9 @@ void microMouseServer::studentAI()
     static int prevDirection = 0;
     static int nextDirection = 0;
 
+    moveCount[currentXPos][currentYPos][nextDirection] += 1;
+
+
     turnFlag = false;
 
     cout << "Move: " << currentMove << " ";
@@ -154,7 +157,7 @@ void microMouseServer::studentAI()
     cout << endl;
     cout << endl;
 
-    if (!isWallRight()) {
+    if (!isWallRight() && (moveCount[currentXPos][currentYPos][1] < moveCount[currentXPos][currentYPos][0] && moveCount[currentXPos][currentYPos][1] < moveCount[currentXPos][currentYPos][3] && moveCount[currentXPos][currentYPos][1] < moveCount[currentXPos][currentYPos][2])) {
         turnRight();
         nextDirection = (nextDirection + 1) % 4;
         turnFlag = true;
@@ -162,7 +165,7 @@ void microMouseServer::studentAI()
         currentMove = 'r';
         leftTurns = 0;
 
-    } else if (isWallForward() && !isWallLeft()) {
+    } else if (isWallForward() && !isWallLeft() && (moveCount[currentXPos][currentYPos][0] < moveCount[currentXPos][currentYPos][1] && moveCount[currentXPos][currentYPos][1] < moveCount[currentXPos][currentYPos][2])) {
         turnLeft();
 
         turnFlag = true;
@@ -204,7 +207,6 @@ void microMouseServer::studentAI()
     cout << "after currentYPos: " << currentYPos << " ";
     cout << "------" << endl;
 
-    moveCount[currentXPos][currentYPos][nextDirection] += 1;
 
 
     cout << "prevDirection: " << prevDirection << endl;
