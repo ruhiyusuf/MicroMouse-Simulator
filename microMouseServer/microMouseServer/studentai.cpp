@@ -89,6 +89,132 @@ void updateCurrentPos(char cMove, int cDirection, int &currentXPos, int &current
     visitCount[currentXPos][currentYPos] += 1;
 }
 
+int numVisitCount(int cDirection, char cMove, int x, int y, int visitCount[][NCOLS]){
+    int num = 0;
+
+    switch(cDirection) {
+        case 0:
+            switch (cMove) {
+                case 'f':
+                    num = visitCount[x][y + 1];
+                break;
+                case 'r':
+                    num = visitCount[x + 1][y];
+                    break;
+                case 'l':
+                    num = visitCount[x - 1][y];
+                    break;
+                case 'b':
+                    num = visitCount[x][y - 1];
+                    break;
+
+            }
+            break;
+        case 1:
+            switch (cMove) {
+                case 'f':
+                    num = visitCount[x + 1][y];
+                    break;
+                case 'r':
+                    num = visitCount[x][y - 1];
+                    break;
+                case 'l':
+                    num = visitCount[x][y + 1];
+                    break;
+                case 'b':
+                    num = visitCount[x - 1][y];
+                    break;
+
+            }
+            break;
+        case 2:
+            switch (cMove) {
+                case 'f':
+                    num = visitCount[x][y - 1];
+                    break;
+                case 'r':
+                    num = visitCount[x - 1][y];
+                    break;
+                case 'l':
+                    num = visitCount[x + 1][y];
+                    break;
+                case 'b':
+                    num = visitCount[x][y + 1];
+                    break;
+
+            }
+            break;
+        case 3:
+            switch (cMove) {
+                case 'f':
+                    num = visitCount[x - 1][y];
+                    break;
+                case 'r':
+                    num = visitCount[x][y + 1];
+                    break;
+                case 'l':
+                    num = visitCount[x][y - 1];
+                    break;
+                case 'b':
+                    num = visitCount[x + 1][y];
+                    break;
+
+            }
+            break;
+
+    }
+
+    return num;
+}
+char updateDirFreq(int cDirection, int x, int y, int visitCount[][NCOLS]){
+    switch (cDirection) {
+        case 0:
+            if ((visitCount[x + 1][y] < visitCount[x][y + 1]) && (visitCount[x + 1][y] < visitCount[x - 1][y]) && (visitCount[x + 1][y] < visitCount[x][y - 1])) {
+                return 'r';
+            } else if ((visitCount[x][y + 1] < visitCount[x - 1][y]) && (visitCount[x][y + 1] < visitCount[x][y - 1])){
+                return 'f';
+            } else if (visitCount[x - 1][y] < visitCount[x][y - 1]) {
+                return 'l';
+            } else {
+                return 'b';
+            }
+        case 1:
+            if ((visitCount[x][y - 1] < visitCount[x + 1][y]) && (visitCount[x][y - 1] < visitCount[x][y + 1]) && (visitCount[x][y - 1] < visitCount[x - 1][y])) {
+                return 'r';
+            } else if ((visitCount[x + 1][y] < visitCount[x][y + 1]) && (visitCount[x + 1][y] < visitCount[x - 1][y])){
+                return 'f';
+            } else if (visitCount[x][y + 1] < visitCount[x - 1][y]) {
+                return 'l';
+            } else {
+                return 'b';
+            }
+        case 2:
+            if ((visitCount[x - 1][y] < visitCount[x][y - 1]) && (visitCount[x - 1][y] < visitCount[x + 1][y]) && (visitCount[x - 1][y] < visitCount[x][y + 1])) {
+                return 'r';
+            } else if ((visitCount[x][y - 1] < visitCount[x + 1][y]) && (visitCount[x][y - 1] < visitCount[x][y + 1])){
+                return 'f';
+            } else if (visitCount[x + 1][y] < visitCount[x][y + 1]) {
+                return 'l';
+            } else {
+                return 'b';
+            }
+        case 3:
+            if ((visitCount[x][y + 1] < visitCount[x - 1][y]) && (visitCount[x][y + 1] < visitCount[x][y - 1]) && (visitCount[x][y + 1] < visitCount[x + 1][y])) {
+                return 'r';
+            } else if ((visitCount[x - 1][y] < visitCount[x][y - 1]) && (visitCount[x - 1][y] < visitCount[x + 1][y])){
+                return 'f';
+            } else if (visitCount[x][y - 1] < visitCount[x + 1][y]) {
+                return 'l';
+            } else {
+                return 'b';
+            }
+        default:
+            return 'z';
+
+    }
+
+}
+
 void microMouseServer::studentAI()
 {
 /*
@@ -150,14 +276,16 @@ void microMouseServer::studentAI()
     cout << "x: " << currentXPos << " ";
     cout << "y: " << currentYPos << " ";
     cout << "visitCount: " << visitCount[currentXPos][currentYPos] << "    ";
-    cout << "moveCount (front, 0): " << moveCount[currentXPos][currentYPos][0] << "      ";
-    cout << "moveCount (right, 1): " << moveCount[currentXPos][currentYPos][1] << "      ";
-    cout << "moveCount (back, 2): " << moveCount[currentXPos][currentYPos][2] << "      ";
-    cout << "moveCount (left, 3): " << moveCount[currentXPos][currentYPos][3] << "      ";
+    // cout << "moveCount (front, 0): " << moveCount[currentXPos][currentYPos][0] << "      ";
+    // cout << "moveCount (right, 1): " << moveCount[currentXPos][currentYPos][1] << "      ";
+    // cout << "moveCount (back, 2): " << moveCount[currentXPos][currentYPos][2] << "      ";
+    // cout << "moveCount (left, 3): " << moveCount[currentXPos][currentYPos][3] << "      ";
+    // cout << endl;
+    char test = numVisitCount(nextDirection, 'f', currentXPos, currentYPos, visitCount);
+    cout << test << endl;
     cout << endl;
-    cout << endl;
-
-    if (!isWallRight() && (moveCount[currentXPos][currentYPos][1] < moveCount[currentXPos][currentYPos][0] && moveCount[currentXPos][currentYPos][1] < moveCount[currentXPos][currentYPos][3] && moveCount[currentXPos][currentYPos][1] < moveCount[currentXPos][currentYPos][2])) {
+//  && updateDirFreq(nextDirection, currentXPos, currentYPos, visitCount)
+    if (!isWallRight() && (numVisitCount(nextDirection, 'r', currentXPos, currentYPos, visitCount) < numVisitCount(nextDirection, 'f', currentXPos, currentYPos, visitCount)) && (numVisitCount(nextDirection, 'r', currentXPos, currentYPos, visitCount) < numVisitCount(nextDirection, 'l', currentXPos, currentYPos, visitCount))) {
         turnRight();
         nextDirection = (nextDirection + 1) % 4;
         turnFlag = true;
@@ -165,7 +293,12 @@ void microMouseServer::studentAI()
         currentMove = 'r';
         leftTurns = 0;
 
-    } else if (isWallForward() && !isWallLeft() && (moveCount[currentXPos][currentYPos][0] < moveCount[currentXPos][currentYPos][1] && moveCount[currentXPos][currentYPos][1] < moveCount[currentXPos][currentYPos][2])) {
+    } else if (!isWallForward() && (numVisitCount(nextDirection, 'f', currentXPos, currentYPos, visitCount) < numVisitCount(nextDirection, 'l', currentXPos, currentYPos, visitCount))) {
+        currentMove = 'f';
+        leftTurns = 0;
+
+    } else if (!isWallLeft() && (numVisitCount(nextDirection, 'l', currentXPos, currentYPos, visitCount) < numVisitCount(nextDirection, 'b', currentXPos, currentYPos, visitCount))) {
+
         turnLeft();
 
         turnFlag = true;
@@ -174,7 +307,7 @@ void microMouseServer::studentAI()
         leftTurns += 1;
         nextDirection = (nextDirection + 3) % 4;
 
-    } else if (isWallForward() && isWallLeft() && isWallRight()) {
+    } else {
         turnRight();
         turnRight();
 
@@ -186,24 +319,19 @@ void microMouseServer::studentAI()
     }
 
     moveForward();
-    if (!turnFlag) {
-        currentMove = 'f';
-
-        leftTurns = 0;
-    }
 
     if (leftTurns == 3) {
         foundFinish();
     }
 
 
-
+/*
     cout << "prev currentXPos: " << currentXPos << " ";
     cout << "prev currentYPos: " << currentYPos << " ";
     cout << "------" << endl;
-
+*/
     updateCurrentPos(currentMove, prevDirection, currentXPos, currentYPos, visitCount);
-    cout << "after currentXPos: " << currentXPos << " ";
+/*    cout << "after currentXPos: " << currentXPos << " ";
     cout << "after currentYPos: " << currentYPos << " ";
     cout << "------" << endl;
 
@@ -211,7 +339,7 @@ void microMouseServer::studentAI()
 
     cout << "prevDirection: " << prevDirection << endl;
     cout << "nextDirection: " << nextDirection << endl;
-
+*/
     prevDirection = nextDirection;
     prevXPos = currentXPos;
     prevYPos = currentYPos;
