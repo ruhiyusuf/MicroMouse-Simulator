@@ -285,6 +285,16 @@ void microMouseServer::studentAI()
     cout << test << endl;
     cout << endl;
 //  && updateDirFreq(nextDirection, currentXPos, currentYPos, visitCount)
+    if (isWallRight() && isWallForward() && isWallLeft()) {
+        turnRight();
+        turnRight();
+
+        nextDirection = (nextDirection + 2) % 4;
+
+        turnFlag = true;
+        currentMove = 'b';
+        leftTurns = 0;
+    }
     if (!isWallRight() && (numVisitCount(nextDirection, 'r', currentXPos, currentYPos, visitCount) < numVisitCount(nextDirection, 'f', currentXPos, currentYPos, visitCount)) && (numVisitCount(nextDirection, 'r', currentXPos, currentYPos, visitCount) < numVisitCount(nextDirection, 'l', currentXPos, currentYPos, visitCount))) {
         turnRight();
         nextDirection = (nextDirection + 1) % 4;
