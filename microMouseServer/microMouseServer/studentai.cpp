@@ -8,9 +8,18 @@ using namespace std;
 
 const int NROWS = 20;
 const int NCOLS = 20;
+const int OOBCOUNT = 65536; // error value for out of bounds visitCount
+const bool DEBUG = false;
 
+//-----------------------------------------------------------------------------
+// void updateCurrentPos(char cMove, int cDirection, int &currentXPos, int &currentYPos, int visitCount[][NCOLS])
+// Updates currentXPos and currentYPos based on cDirection and cMove.
+// Once the new currentXPos and currentYPos are calculated, they are used as
+// index values in the visitCount array to update number of times the mouse
+// has visited that position.
+//-----------------------------------------------------------------------------
 void updateCurrentPos(char cMove, int cDirection, int &currentXPos, int &currentYPos, int visitCount[][NCOLS]) {
-
+    // updates current x and y value of mouse
     switch(cDirection) {
 
     case 0: // North
@@ -84,13 +93,16 @@ void updateCurrentPos(char cMove, int cDirection, int &currentXPos, int &current
 
     }
 
-
     visitCount[currentXPos][currentYPos] += 1;
 }
 
-int numVisitCount(int cDirection, char cMove, int x, int y, int visitCount[][NCOLS]){
-    int num = 0;
-
+//-----------------------------------------------------------------------------
+// int numVisitCount(int cDirection, char cMove, int x, int y, int visitCount[][NCOLS])
+// Returns number of times mouse has visited a destination location based on
+// its current direction, (x, y) position, and desired move.
+// If the destination location is out of bounds, return OOBCOUNT.
+//-----------------------------------------------------------------------------
+int numVisitCount(int cDirection, char cMove, int x, int y, int visitCount[][NCOLS]) {
 
     // mouse facing North
     if (cDirection == 0) {
@@ -146,60 +158,17 @@ int numVisitCount(int cDirection, char cMove, int x, int y, int visitCount[][NCO
     }
 
     if  (x < 0 || x >= NCOLS || y < 0 || y >= NCOLS) {
-        return 65536; // out of bounds, invalid value
+        return OOBCOUNT; // out of bounds, invalid value
     }
 
     return visitCount[x][y];
 }
-char updateDirFreq(int cDirection, int x, int y, int visitCount[][NCOLS]){
-    switch (cDirection) {
-        case 0:
-            if ((visitCount[x + 1][y] < visitCount[x][y + 1]) && (visitCount[x + 1][y] < visitCount[x - 1][y]) && (visitCount[x + 1][y] < visitCount[x][y - 1])) {
-                return 'r';
-            } else if ((visitCount[x][y + 1] < visitCount[x - 1][y]) && (visitCount[x][y + 1] < visitCount[x][y - 1])){
-                return 'f';
-            } else if (visitCount[x - 1][y] < visitCount[x][y - 1]) {
-                return 'l';
-            } else {
-                return 'b';
-            }
-        case 1:
-            if ((visitCount[x][y - 1] < visitCount[x + 1][y]) && (visitCount[x][y - 1] < visitCount[x][y + 1]) && (visitCount[x][y - 1] < visitCount[x - 1][y])) {
-                return 'r';
-            } else if ((visitCount[x + 1][y] < visitCount[x][y + 1]) && (visitCount[x + 1][y] < visitCount[x - 1][y])){
-                return 'f';
-            } else if (visitCount[x][y + 1] < visitCount[x - 1][y]) {
-                return 'l';
-            } else {
-                return 'b';
-            }
-        case 2:
-            if ((visitCount[x - 1][y] < visitCount[x][y - 1]) && (visitCount[x - 1][y] < visitCount[x + 1][y]) && (visitCount[x - 1][y] < visitCount[x][y + 1])) {
-                return 'r';
-            } else if ((visitCount[x][y - 1] < visitCount[x + 1][y]) && (visitCount[x][y - 1] < visitCount[x][y + 1])){
-                return 'f';
-            } else if (visitCount[x + 1][y] < visitCount[x][y + 1]) {
-                return 'l';
-            } else {
-                return 'b';
-            }
-        case 3:
-            if ((visitCount[x][y + 1] < visitCount[x - 1][y]) && (visitCount[x][y + 1] < visitCount[x][y - 1]) && (visitCount[x][y + 1] < visitCount[x + 1][y])) {
-                return 'r';
-            } else if ((visitCount[x - 1][y] < visitCount[x][y - 1]) && (visitCount[x - 1][y] < visitCount[x + 1][y])){
-                return 'f';
-            } else if (visitCount[x][y - 1] < visitCount[x + 1][y]) {
-                return 'l';
-            } else {
-                return 'b';
-            }
-        default:
-            return 'z';
 
-    }
-
-}
-
+//-----------------------------------------------------------------------------
+// void printArray(int array[][NCOLS])
+// Prints the cpp array in grid orientation
+// (0, 0) is found on bottom left; (NROWS, NCOLS) is found at top right
+//-----------------------------------------------------------------------------
 void printArray(int array[][NCOLS]) {
     for (int i = NCOLS - 1; i >= 0; i--) {
         for (int j = 0; j < NROWS; j++) {
@@ -207,7 +176,29 @@ void printArray(int array[][NCOLS]) {
         }
         cout << endl;
     }
+}
 
+void recordTurnRight(int &nextDirection, char &currentMove, int &numLeftTurns) {
+    nextDirection = (nextDirection + 1) % 4;
+    currentMove = 'r';
+    numLeftTurns = 0;
+}
+
+void recordTurnLeft(int &nextDirection, char &currentMove, int &numLeftTurns) {
+    currentMove = 'l';
+    numLeftTurns += 1;
+    nextDirection = (nextDirection + 3) % 4;
+}
+
+void recordMoveForward(char &currentMove, int &numLeftTurns) {
+    currentMove = 'f';
+    numLeftTurns = 0;
+}
+
+void recordMoveBack(int &nextDirection, char &currentMove, int &numLeftTurns) {
+    nextDirection = (nextDirection + 2) % 4;
+    currentMove = 'b';
+    numLeftTurns = 0;
 }
 
 void microMouseServer::studentAI()
@@ -235,6 +226,7 @@ void microMouseServer::studentAI()
     static int currentYPos = 0;
     static bool startFlag = true;
 
+    // use startFlag to initialize visitCount once at beginning of program
     if (startFlag) {
         memset(visitCount, 0, sizeof(visitCount[0][0]) * NROWS * NCOLS);
         visitCount[currentXPos][currentYPos] = 1;
@@ -242,94 +234,81 @@ void microMouseServer::studentAI()
     }
 
     static char currentMove = 'z';
-    static int numLeftTurns = 0;
+    static int numLeftTurns = 0; // tracks numLeftTurns to detect end of maze
     static int prevDirection = 0;
     static int nextDirection = 0;
     static int loopCount = 0;
-
-
-    cout << "loopCount: " << loopCount << " ";
-    cout << "Move: " << currentMove << " ";
-    cout << "Direction: " << nextDirection << " ";
-    cout << "x: " << currentXPos << " ";
-    cout << "y: " << currentYPos << " ";
-    cout << "current visitCount: " << visitCount[currentXPos][currentYPos] << "    ";
-    cout << endl;
 
     int numVisitedLeft, numVisitedRight, numVisitedFront;
     numVisitedLeft = numVisitCount(nextDirection, 'l', currentXPos, currentYPos, visitCount);
     numVisitedRight = numVisitCount(nextDirection, 'r', currentXPos, currentYPos, visitCount);
     numVisitedFront = numVisitCount(nextDirection, 'f', currentXPos, currentYPos, visitCount);
 
+    if (DEBUG) {
+        cout << "loopCount: " << loopCount << " ";
+        cout << "Move: " << currentMove << " ";
+        cout << "Direction: " << nextDirection << " ";
+        cout << "x: " << currentXPos << " ";
+        cout << "y: " << currentYPos << " ";
+        cout << "current visitCount: " << visitCount[currentXPos][currentYPos] << "    ";
+        cout << endl;
 
-    cout << "numVisitedLeft: " << numVisitedLeft << " ";
-    cout << "numVisitedRight: " << numVisitedRight << " ";
-    cout << "numVisitedFront: " << numVisitedFront << " ";
-    cout << endl;
-    cout << endl;
+        cout << "numVisitedLeft: " << numVisitedLeft << " ";
+        cout << "numVisitedRight: " << numVisitedRight << " ";
+        cout << "numVisitedFront: " << numVisitedFront << " ";
+        cout << endl;
+        cout << endl;
 
-    if (loopCount % 10 == 0) printArray(visitCount);
+        if (loopCount % 10 == 0) printArray(visitCount);
+    }
 
     // check for alley way (surrounded by walls on right, left, and front)
     if (isWallRight() && isWallForward() && isWallLeft()) {
-           turnRight();
-           turnRight();
-           nextDirection = (nextDirection + 2) % 4;
-           currentMove = 'b';
-           numLeftTurns = 0;
-
-       } else if (isWallForward() && isWallLeft()) {
         turnRight();
-        nextDirection = (nextDirection + 1) % 4;
-        currentMove = 'r';
-        numLeftTurns = 0;
+        turnRight();
+        recordMoveBack(nextDirection, currentMove, numLeftTurns);
+
+    } else if (isWallForward() && isWallLeft()) {
+        turnRight();
+        recordTurnRight(nextDirection, currentMove, numLeftTurns);
+
     } else if (isWallForward() && isWallRight()) {
         turnLeft();
-        currentMove = 'l';
-        numLeftTurns += 1;
-        nextDirection = (nextDirection + 3) % 4;
-    }
+        recordTurnLeft(nextDirection, currentMove, numLeftTurns);
 
-    else {
+    } else {
 
         if (!isWallRight() && (numVisitedRight <= numVisitedFront) && (numVisitedRight <= numVisitedLeft)) {
            turnRight();
-           nextDirection = (nextDirection + 1) % 4;
-           currentMove = 'r';
-           numLeftTurns = 0;
+           recordTurnRight(nextDirection, currentMove, numLeftTurns);
 
        } else if (!isWallForward() && (numVisitedFront <= numVisitedLeft)) {
-           currentMove = 'f';
-           numLeftTurns = 0;
+           recordMoveForward(currentMove, numLeftTurns);
 
        } else if (!isWallLeft()){
            turnLeft();
-           currentMove = 'l';
-           numLeftTurns += 1;
-           nextDirection = (nextDirection + 3) % 4;
+           recordTurnLeft(nextDirection, currentMove, numLeftTurns);
        } else {
-            cout << "why are we here" << endl;
-            currentMove = 'f';
-            numLeftTurns = 0;
+           recordMoveForward(currentMove, numLeftTurns);
         }
 
     }
 
     if (!moveForward()) {
-        cout << "cannot move forward" << endl;
+        cout << "ERROR: cannot move forward" << endl;
         foundFinish();
     }
 
     if (numLeftTurns == 3) {
         cout << endl;
-        cout << "WE FOUND THE FINISH" << endl;
+        cout << "WE FOUND THE FINISH IN " << loopCount << " STEPS!!!!" << endl;
         foundFinish();
     }
 
     updateCurrentPos(currentMove, prevDirection, currentXPos, currentYPos, visitCount);
 
     if (currentXPos < 0 || currentYPos < 0 || currentXPos >= NROWS || currentYPos >= NCOLS) {
-        cout << "error, out of bounds x y" << endl;
+        cout << "ERROR: out of bounds x y" << endl;
         foundFinish();
     }
     prevDirection = nextDirection;
