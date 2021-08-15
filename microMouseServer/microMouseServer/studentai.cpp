@@ -154,44 +154,45 @@ void microMouseServer::studentAI()
     cout << endl;
     cout << endl;
 
-    if (!isWallRight()) {
-        turnRight();
-        nextDirection = (nextDirection + 1) % 4;
-        turnFlag = true;
-
-        currentMove = 'r';
-        leftTurns = 0;
-
-    } else if (isWallForward() && !isWallLeft()) {
-        turnLeft();
-
-        turnFlag = true;
-        currentMove = 'l';
-
-        leftTurns += 1;
-        nextDirection = (nextDirection + 3) % 4;
-
-    } else if (isWallForward() && isWallLeft() && isWallRight()) {
+    if (isWallRight() && isWallForward() && isWallLeft()) {
         turnRight();
         turnRight();
-
-        nextDirection = (nextDirection + 2) % 4;
-
-        turnFlag = true;
         currentMove = 'b';
         leftTurns = 0;
-    }
+    } else {
 
+
+    if (!isWallRight()) {
+            turnRight();
+            nextDirection = (nextDirection + 1) % 4;
+            turnFlag = true;
+
+            currentMove = 'r';
+            leftTurns = 0;
+
+        } else if (!isWallForward()) {
+            currentMove = 'f';
+            leftTurns = 0;
+
+        } else {
+
+            turnLeft();
+
+            turnFlag = true;
+            currentMove = 'l';
+
+            leftTurns += 1;
+            nextDirection = (nextDirection + 3) % 4;
+
+        }
+
+    }
     moveForward();
-    if (!turnFlag) {
-        currentMove = 'f';
-
-        leftTurns = 0;
-    }
 
     if (leftTurns == 3) {
         foundFinish();
     }
+
 
 
 
